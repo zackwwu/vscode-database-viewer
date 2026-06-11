@@ -6,22 +6,40 @@
   "engines": {
     "vscode": "^1.85.0"
   },
+  "activationEvents": [
+    "onView:databaseViewer.connections"
+  ],
   "contributes": {
     "commands": [
       {
         "command": "databaseViewer.addConnection",
         "title": "Add Database Connection"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "database-viewer",
+          "title": "Database Viewer",
+          "icon": "media/db-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "database-viewer": [
+        {
+          "id": "databaseViewer.connections",
+          "name": "Connections"
+        }
+      ]
+    }
   },
-  "activationEvents": [
-    "onCommand:databaseViewer.addConnection"
-  ],
   "scripts": {
     "dev": "npm run build:extension -- --watch",
     "build": "npm run build:extension && npm run build:webview",
     "build:extension": "node esbuild.js",
     "build:webview": "vite build",
+    "lint": "eslint src/",
     "package": "vsce package",
     "test": "echo \"No tests yet\""
   },
@@ -40,10 +58,14 @@
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
+    "@types/vscode": "^1.85.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
     "esbuild": "^0.19.11",
+    "eslint": "^8.56.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.7",
-    "vsce": "^2.15.0"
+    "vsce": "^2.15.0",
+    "vitest": "^1.0.4"
   }
 }
