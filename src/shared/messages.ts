@@ -12,6 +12,7 @@ export type WebviewMessage =
   | { type: "delete-connection"; requestId: string; connectionId: string };
 
 export type ExtensionMessage =
+  | { type: "init"; panelType: string; connectionId: string; [key: string]: unknown }
   | { type: "table-data"; requestId: string; rows: Record<string, unknown>[]; columns: ColumnMeta[]; totalCount?: number }
   | { type: "query-results"; requestId: string; results: QueryResult[]; executionTimeMs: number }
   | { type: "update-success"; requestId: string; updatedCount: number }

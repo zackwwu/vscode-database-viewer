@@ -1,8 +1,18 @@
 import * as vscode from "vscode";
 import { WebviewMessage, ExtensionMessage } from "../../shared/messages";
+import { ConnectionManager } from "../connections/connectionManager";
+import { QueryExecutor } from "../database/queryExecutor";
 
 export class MessageHandler {
-  constructor(private panel: vscode.WebviewPanel) {}
+  private queryExecutor: QueryExecutor;
+
+  constructor(
+    private panel: vscode.WebviewPanel,
+    private connectionManager: ConnectionManager,
+    private connectionId: string
+  ) {
+    this.queryExecutor = new QueryExecutor(connectionManager);
+  }
 
   handleMessage(msg: WebviewMessage): void {
     switch (msg.type) {
@@ -40,16 +50,91 @@ export class MessageHandler {
     this.panel.webview.postMessage(msg);
   }
 
-  private handleFetchTableData(msg: Extract<WebviewMessage, { type: "fetch-table-data" }>): void {
-    this.sendResponse({ type: "error", requestId: msg.requestId, message: "Not implemented" });
+  private async handleFetchTableData(
+    msg: Extract<WebviewMessage, { type: "fetch-table-data" }>
+  ): Promise<void> {
+    try {
+      this.sendResponse({ type: "loading", requestId: msg.requestId, loading: true });
+      const { rows, columns } = await this.queryExecutor.fetchTableData(
+        this.connectionId,
+        msg.table,
+        msg.schema,
+        msg.where,
+        msg.orderBy,
+        msg.limit,
+        msg.offset
+      );
+      this.sendResponse({
+        type: "table-data",
+        requestId: msg.requestId,
+        rows,
+        columns,
+      });
+    } catch (error) {
+      this.sendResponse({
+        type: "error",
+        requestId: msg.requestId,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      this.sendResponse({ type: "loading", requestId: msg.requestId, loading: false });
+    }
   }
 
-  private handleUpdateRows(msg: Extract<WebviewMessage, { type: "update-rows" }>): void {
-    this.sendResponse({ type: "error", requestId: msg.requestId, message: "Not implemented" });
+  private async handleUpdateRows(
+    msg: Extract<WebviewMessage, { type: "update-rows" }>
+  ): Promise<void> {
+    try {
+      const result = await this.queryExecutor.updateRows(
+        this.connectionId,
+        msg.table,
+        msg.schema,
+        msg.changes
+      );
+      if (result.errors.length > 0) {
+        this.sendResponse({
+          type: "update-error",
+          requestId: msg.requestId,
+          errors: result.errors,
+        });
+      } else {
+        this.sendResponse({
+          type: "update-success",
+          requestId: msg.requestId,
+          updatedCount: result.updatedCount,
+        });
+      }
+    } catch (error) {
+      this.sendResponse({
+        type: "error",
+        requestId: msg.requestId,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 
-  private handleExecuteQuery(msg: Extract<WebviewMessage, { type: "execute-query" }>): void {
-    this.sendResponse({ type: "error", requestId: msg.requestId, message: "Not implemented" });
+  private async handleExecuteQuery(
+    msg: Extract<WebviewMessage, { type: "execute-query" }>
+  ): Promise<void> {
+    try {
+      this.sendResponse({ type: "loading", requestId: msg.requestId, loading: true });
+      const targetId = msg.connectionId || this.connectionId;
+      const { results, executionTimeMs } = await this.queryExecutor.executeQuery(targetId, msg.sql);
+      this.sendResponse({
+        type: "query-results",
+        requestId: msg.requestId,
+        results,
+        executionTimeMs,
+      });
+    } catch (error) {
+      this.sendResponse({
+        type: "error",
+        requestId: msg.requestId,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      this.sendResponse({ type: "loading", requestId: msg.requestId, loading: false });
+    }
   }
 
   private handleGetSchema(msg: Extract<WebviewMessage, { type: "get-schema" }>): void {
@@ -60,8 +145,28 @@ export class MessageHandler {
     // Will be implemented with query executor
   }
 
-  private handleCountRows(msg: Extract<WebviewMessage, { type: "count-rows" }>): void {
-    this.sendResponse({ type: "error", requestId: msg.requestId, message: "Not implemented" });
+  private async handleCountRows(
+    msg: Extract<WebviewMessage, { type: "count-rows" }>
+  ): Promise<void> {
+    try {
+      const count = await this.queryExecutor.countRows(
+        this.connectionId,
+        msg.table,
+        msg.schema,
+        msg.where
+      );
+      this.sendResponse({
+        type: "row-count",
+        requestId: msg.requestId,
+        count,
+      });
+    } catch (error) {
+      this.sendResponse({
+        type: "error",
+        requestId: msg.requestId,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 
   private handleTestConnection(msg: Extract<WebviewMessage, { type: "test-connection" }>): void {

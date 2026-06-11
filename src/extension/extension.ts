@@ -1,10 +1,12 @@
 import * as vscode from "vscode";
 import { ConnectionManager } from "./connections/connectionManager";
 import { DatabaseTreeProvider } from "./tree/treeProvider";
+import { WebviewManager } from "./webview/webviewManager";
 
 export function activate(context: vscode.ExtensionContext) {
   const connectionManager = new ConnectionManager(context);
   const treeProvider = new DatabaseTreeProvider(connectionManager);
+  const webviewManager = new WebviewManager(connectionManager, context.extensionUri);
 
   const treeView = vscode.window.createTreeView("databaseViewer.connections", {
     treeDataProvider: treeProvider,
@@ -22,11 +24,11 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "databaseViewer.openTable",
       (connectionId: string, schema: string | undefined, table: string) => {
-        vscode.window.showInformationMessage(`Open table: ${table} - coming soon`);
+        webviewManager.openTableView(connectionId, schema, table);
       }
     ),
-    vscode.commands.registerCommand("databaseViewer.openQuery", () => {
-      vscode.window.showInformationMessage("Query Console - coming soon");
+    vscode.commands.registerCommand("databaseViewer.openQuery", (connectionId?: string) => {
+      webviewManager.openQueryConsole(connectionId);
     })
   );
 }
