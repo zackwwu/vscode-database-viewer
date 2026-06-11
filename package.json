@@ -1,0 +1,49 @@
+{
+  "name": "database-viewer",
+  "version": "0.1.0",
+  "description": "VS Code extension for viewing and querying databases",
+  "main": "dist/extension.js",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "databaseViewer.addConnection",
+        "title": "Add Database Connection"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onCommand:databaseViewer.addConnection"
+  ],
+  "scripts": {
+    "dev": "npm run build:extension -- --watch",
+    "build": "npm run build:extension && npm run build:webview",
+    "build:extension": "node esbuild.js",
+    "build:webview": "vite build",
+    "package": "vsce package",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "ag-grid-community": "^33.0.0",
+    "ag-grid-react": "^33.0.0",
+    "better-sqlite3": "^11.0.0",
+    "monaco-editor": "^0.50.0",
+    "pg": "^8.11.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.2.1",
+    "esbuild": "^0.19.11",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.7",
+    "vsce": "^2.15.0"
+  }
+}
