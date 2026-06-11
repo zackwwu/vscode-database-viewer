@@ -288,3 +288,50 @@ body {
 .result-tab {
   margin-bottom: 16px;
 }
+
+.results-grid {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.results-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.results-tab {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-bottom: none;
+  color: var(--fg);
+  padding: 4px 12px;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.results-tab.active {
+  background: var(--bg);
+  border-bottom: 2px solid var(--button-bg);
+}
+
+.tab-count {
+  opacity: 0.7;
+  margin-left: 4px;
+  font-size: 11px;
+}
+
+.results-grid-container {
+  flex: 1;
+  min-height: 200px;
+}
+
+.no-rows {
+  padding: 16px;
+  text-align: center;
+  opacity: 0.7;
+  font-size: 13px;
+}
