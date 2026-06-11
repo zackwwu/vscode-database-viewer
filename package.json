@@ -41,7 +41,7 @@
     "build:webview": "vite build",
     "lint": "eslint src/",
     "package": "vsce package",
-    "test": "echo \"No tests yet\""
+    "test": "vitest run"
   },
   "dependencies": {
     "ag-grid-community": "^33.0.0",
