@@ -54,8 +54,10 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.8",
+    "@testcontainers/postgresql": "^12.0.1",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.10.0",
+    "@types/pg": "^8.20.0",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@types/vscode": "^1.85.0",
@@ -65,7 +67,7 @@
     "eslint": "^8.56.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.7",
-    "vsce": "^2.15.0",
-    "vitest": "^1.0.4"
+    "vitest": "^1.0.4",
+    "vsce": "^2.15.0"
   }
 }
