@@ -1,6 +1,6 @@
 {
   "name": "database-viewer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "VS Code extension for viewing and querying databases",
   "main": "dist/extension.js",
   "engines": {
