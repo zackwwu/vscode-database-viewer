@@ -1,8 +1,35 @@
+import React, { useEffect, useState } from "react";
+import { TableView } from "./components/TableView/TableView";
+import { InitMessage } from "./types/messages";
+
 export default function App() {
-  return (
-    <div style={{ padding: '20px', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>Database Viewer</h1>
-      <p>Welcome to the Database Viewer extension!</p>
-    </div>
-  );
+  const [initData, setInitData] = useState<InitMessage | null>(null);
+
+  useEffect(() => {
+    const listener = (event: MessageEvent) => {
+      const msg = event.data;
+      if (msg.type === "init") {
+        setInitData(msg as InitMessage);
+      }
+    };
+    window.addEventListener("message", listener);
+    return () => window.removeEventListener("message", listener);
+  }, []);
+
+  if (!initData) {
+    return <div className="loading">Initializing...</div>;
+  }
+
+  if (initData.panelType === "table") {
+    return (
+      <TableView
+        table={initData.table}
+        schema={initData.schema}
+        connectionId={initData.connectionId}
+      />
+    );
+  }
+
+  // Query console placeholder — will be implemented in Task 10
+  return <div className="loading">Query Console - coming soon</div>;
 }
