@@ -44,6 +44,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "ag-grid-community": "^33.0.0",
     "ag-grid-react": "^33.0.0",
     "better-sqlite3": "^11.0.0",

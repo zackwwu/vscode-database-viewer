@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TableView } from "./components/TableView/TableView";
+import { QueryConsole } from "./components/QueryConsole/QueryConsole";
 import { InitMessage } from "./types/messages";
 
 export default function App() {
@@ -30,6 +31,14 @@ export default function App() {
     );
   }
 
-  // Query console placeholder — will be implemented in Task 10
-  return <div className="loading">Query Console - coming soon</div>;
+  if (initData.panelType === "query") {
+    return (
+      <QueryConsole
+        connectionId={initData.connectionId}
+        connections={initData.connections}
+      />
+    );
+  }
+
+  return <div className="loading">Unknown panel type</div>;
 }

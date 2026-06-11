@@ -53,7 +53,13 @@ export class WebviewManager {
     const connection = connections.find((c) => c.id === actualConnectionId);
     const title = connection ? `Query Console - ${connection.name}` : "Query Console";
 
-    this.createPanel(panelKey, title, "query", actualConnectionId, {});
+    this.createPanel(panelKey, title, "query", actualConnectionId, {
+      connections: connections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        driver: c.driver,
+      })),
+    });
   }
 
   private createPanel(
@@ -91,7 +97,7 @@ export class WebviewManager {
       panelType: type,
       connectionId,
       ...context,
-    });
+    } as any);
   }
 
   private getWebviewHtml(

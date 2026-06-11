@@ -205,3 +205,86 @@ body {
   display: flex;
   align-items: center;
 }
+
+.query-console {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.query-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.query-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.query-toolbar select {
+  background: var(--input-bg);
+  color: var(--fg);
+  border: 1px solid var(--input-border);
+  padding: 4px 8px;
+  border-radius: 2px;
+}
+
+.query-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.query-buttons button {
+  background: var(--button-bg);
+  color: var(--button-fg);
+  border: none;
+  padding: 4px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.query-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.query-editor {
+  flex: 0 0 40%;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.query-results {
+  flex: 1;
+  overflow: auto;
+  padding: 8px;
+}
+
+.execution-info {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.results-placeholder {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.results-placeholder pre {
+  background: var(--input-bg);
+  padding: 8px;
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 300px;
+}
+
+.result-tab {
+  margin-bottom: 16px;
+}
