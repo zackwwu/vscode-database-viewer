@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { ConnectionManager } from "./connections/connectionManager";
 import { DatabaseTreeProvider } from "./tree/treeProvider";
 import { WebviewManager } from "./webview/webviewManager";
+import { DatabaseTreeItem } from "./tree/treeNodes";
 
 export function activate(context: vscode.ExtensionContext) {
   const connectionManager = new ConnectionManager(context);
@@ -29,6 +30,42 @@ export function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand("databaseViewer.openQuery", (connectionId?: string) => {
       webviewManager.openQueryConsole(connectionId);
+    }),
+    vscode.commands.registerCommand("databaseViewer.editConnection", (node: DatabaseTreeItem) => {
+      if (node.connectionId) {
+        const config = connectionManager.getConnection(node.connectionId);
+        if (config) {
+          webviewManager.openConnectionForm(config);
+        }
+      }
+    }),
+    vscode.commands.registerCommand("databaseViewer.deleteConnection", async (node: DatabaseTreeItem) => {
+      if (node.connectionId) {
+        const config = connectionManager.getConnection(node.connectionId);
+        const confirm = await vscode.window.showWarningMessage(
+          `Delete connection "${config?.name}"?`,
+          { modal: true },
+          "Delete"
+        );
+        if (confirm === "Delete") {
+          await connectionManager.deleteConnection(node.connectionId);
+          treeProvider.refresh();
+        }
+      }
+    }),
+    vscode.commands.registerCommand("databaseViewer.disconnect", async (node: DatabaseTreeItem) => {
+      if (node.connectionId) {
+        try {
+          const driver = await connectionManager.getDriver(node.connectionId);
+          await driver.disconnect();
+          treeProvider.refresh();
+          vscode.window.showInformationMessage("Disconnected.");
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            `Disconnect failed: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      }
     })
   );
 }

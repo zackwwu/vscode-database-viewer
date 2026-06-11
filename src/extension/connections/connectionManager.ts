@@ -91,17 +91,27 @@ export class ConnectionManager {
 
   async getDriver(id: string): Promise<DatabaseDriver> {
     const cached = this.drivers.get(id);
-    if (cached && cached.isConnected()) {
-      return cached;
+    if (cached) {
+      if (cached.isConnected()) {
+        return cached;
+      }
+      // Auto-reconnect
+      this.drivers.delete(id);
     }
 
     const config = this.getConnection(id);
     if (!config) {
-      throw new Error("Connection not found");
+      throw new Error(`Connection "${id}" not found`);
     }
 
     const driver = await this.createDriver(config);
-    await driver.connect();
+    try {
+      await driver.connect();
+    } catch (error) {
+      throw new Error(
+        `Failed to connect to "${config.name}": ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
     this.drivers.set(id, driver);
     return driver;
   }

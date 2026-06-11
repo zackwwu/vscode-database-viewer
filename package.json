@@ -13,9 +13,77 @@
     "commands": [
       {
         "command": "databaseViewer.addConnection",
-        "title": "Add Database Connection"
+        "title": "Database Viewer: Add Connection",
+        "icon": "$(add)"
+      },
+      {
+        "command": "databaseViewer.openQuery",
+        "title": "Database Viewer: New Query Console",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "databaseViewer.refresh",
+        "title": "Database Viewer: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "databaseViewer.openTable",
+        "title": "Open Table"
+      },
+      {
+        "command": "databaseViewer.editConnection",
+        "title": "Edit Connection"
+      },
+      {
+        "command": "databaseViewer.deleteConnection",
+        "title": "Delete Connection"
+      },
+      {
+        "command": "databaseViewer.disconnect",
+        "title": "Disconnect"
       }
     ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "databaseViewer.openTable",
+          "when": "viewItem == table",
+          "group": "navigation"
+        },
+        {
+          "command": "databaseViewer.openQuery",
+          "when": "viewItem == connection",
+          "group": "navigation"
+        },
+        {
+          "command": "databaseViewer.editConnection",
+          "when": "viewItem == connection",
+          "group": "1_modify"
+        },
+        {
+          "command": "databaseViewer.deleteConnection",
+          "when": "viewItem == connection",
+          "group": "1_modify"
+        },
+        {
+          "command": "databaseViewer.disconnect",
+          "when": "viewItem == connection",
+          "group": "2_connection"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "databaseViewer.refresh",
+          "when": "view == databaseViewer.connections",
+          "group": "navigation"
+        },
+        {
+          "command": "databaseViewer.addConnection",
+          "when": "view == databaseViewer.connections",
+          "group": "navigation"
+        }
+      ]
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -32,6 +100,21 @@
           "name": "Connections"
         }
       ]
+    },
+    "configuration": {
+      "title": "Database Viewer",
+      "properties": {
+        "databaseViewer.queryTimeout": {
+          "type": "number",
+          "default": 30000,
+          "description": "Query timeout in milliseconds"
+        },
+        "databaseViewer.defaultPageSize": {
+          "type": "number",
+          "default": 50,
+          "description": "Default number of rows to display per page"
+        }
+      }
     }
   },
   "scripts": {
