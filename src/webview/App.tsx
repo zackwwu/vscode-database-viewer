@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { TableView } from "./components/TableView/TableView";
 import { QueryConsole } from "./components/QueryConsole/QueryConsole";
+import { ConnectionForm } from "./components/ConnectionForm/ConnectionForm";
 import { InitMessage } from "./types/messages";
 
 export default function App() {
@@ -38,6 +39,10 @@ export default function App() {
         connections={initData.connections}
       />
     );
+  }
+
+  if (initData.panelType === "connection-form") {
+    return <ConnectionForm existingConfig={initData.existingConfig} />;
   }
 
   return <div className="loading">Unknown panel type</div>;

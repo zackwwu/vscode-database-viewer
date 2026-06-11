@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     treeView,
     vscode.commands.registerCommand("databaseViewer.addConnection", () => {
-      vscode.window.showInformationMessage("Add Connection - coming soon");
+      webviewManager.openConnectionForm();
     }),
     vscode.commands.registerCommand("databaseViewer.refresh", () => {
       treeProvider.refresh();

@@ -1,3 +1,5 @@
+import { ConnectionConfig } from "../../shared/types";
+
 export interface TableInitMessage {
   type: "init";
   panelType: "table";
@@ -13,4 +15,10 @@ export interface QueryInitMessage {
   connections: { id: string; name: string; driver: string }[];
 }
 
-export type InitMessage = TableInitMessage | QueryInitMessage;
+export interface ConnectionFormInitMessage {
+  type: "init";
+  panelType: "connection-form";
+  existingConfig?: ConnectionConfig;
+}
+
+export type InitMessage = TableInitMessage | QueryInitMessage | ConnectionFormInitMessage;
