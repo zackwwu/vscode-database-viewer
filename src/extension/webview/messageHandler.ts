@@ -17,7 +17,10 @@ export class MessageHandler {
   handleMessage(msg: WebviewMessage): void {
     switch (msg.type) {
       case "fetch-table-data":
-        this.handleFetchTableData(msg);
+        this.handleFetchTableData(msg).catch((e) => {
+          console.error("handleFetchTableData error:", e);
+          this.sendResponse({ type: "error", requestId: msg.requestId, message: String(e) });
+        });
         break;
       case "update-rows":
         this.handleUpdateRows(msg);
@@ -54,7 +57,6 @@ export class MessageHandler {
     msg: Extract<WebviewMessage, { type: "fetch-table-data" }>
   ): Promise<void> {
     try {
-      this.sendResponse({ type: "loading", requestId: msg.requestId, loading: true });
       const { rows, columns } = await this.queryExecutor.fetchTableData(
         this.connectionId,
         msg.table,
@@ -76,8 +78,6 @@ export class MessageHandler {
         requestId: msg.requestId,
         message: error instanceof Error ? error.message : String(error),
       });
-    } finally {
-      this.sendResponse({ type: "loading", requestId: msg.requestId, loading: false });
     }
   }
 

@@ -11,7 +11,7 @@ const options = {
   platform: 'node',
   target: 'node16',
   format: 'cjs',
-  external: ['vscode', 'better-sqlite3'],
+  external: ['vscode', 'sql.js/dist/sql-asm.js'],
   sourcemap: !isProduction,
   minify: isProduction,
 };

@@ -58,7 +58,6 @@ export class DatabaseTreeProvider implements vscode.TreeDataProvider<DatabaseTre
       }
       return createConnectionNode(conn.id, conn.name, conn.driver, connected);
     });
-    nodes.push(createAddConnectionNode());
     return nodes;
   }
 

@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, CellValueChangedEvent } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+
 import { FilterToolbar } from "./FilterToolbar";
 import { BatchActions } from "./BatchActions";
 import { useExtensionMessage } from "../../hooks/useExtensionMessage";

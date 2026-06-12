@@ -125,7 +125,24 @@ export class WebviewManager {
 
     // Override message handler for connection form
     panel.webview.onDidReceiveMessage(async (msg: any) => {
-      if (msg.type === "test-connection") {
+      if (msg.type === "pick-file") {
+        const filters: Record<string, string[]> = {};
+        if (msg.filterName && msg.filterExtensions) {
+          filters[msg.filterName] = msg.filterExtensions;
+        }
+        const result = await vscode.window.showOpenDialog({
+          canSelectFiles: true,
+          canSelectFolders: false,
+          canSelectMany: false,
+          filters: Object.keys(filters).length > 0 ? filters : undefined,
+          title: msg.title || "Select File",
+        });
+        panel.webview.postMessage({
+          type: "file-picked",
+          requestId: msg.requestId,
+          path: result?.[0]?.fsPath || null,
+        });
+      } else if (msg.type === "test-connection") {
         try {
           const { SqliteDriver } = await import("../database/drivers/sqlite");
           const { PostgresDriver } = await import("../database/drivers/postgres");
@@ -220,7 +237,7 @@ export class WebviewManager {
       vscode.Uri.joinPath(this.extensionUri, "dist", "webview", "main.js")
     );
     const styleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "dist", "webview", "style.css")
+      vscode.Uri.joinPath(this.extensionUri, "dist", "webview", "index.css")
     );
     const nonce = getNonce();
 

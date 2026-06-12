@@ -26,6 +26,17 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const { sendRequest } = useExtensionMessage();
 
+  const pickFile = (title: string, filterName?: string, filterExtensions?: string[]) => {
+    return new Promise<string | null>((resolve) => {
+      sendRequest(
+        { type: "pick-file", title, filterName, filterExtensions } as any,
+        (msg: any) => {
+          resolve(msg.type === "file-picked" ? msg.path : null);
+        }
+      );
+    });
+  };
+
   const buildConfig = (): ConnectionConfig => {
     const config: any = {
       id: existingConfig?.id || crypto.randomUUID(),
@@ -55,14 +66,13 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
   const handleTest = () => {
     setTesting(true);
     setTestResult(null);
-    const requestId = `test-${Date.now()}`;
     sendRequest(
-      { type: "test-connection", requestId, config: buildConfig() },
+      { type: "test-connection", config: buildConfig() } as any,
       (msg: any) => {
-        if (msg.type === "connection-test-result" && msg.requestId === requestId) {
+        if (msg.type === "connection-test-result") {
           setTestResult({ success: msg.success, error: msg.error });
           setTesting(false);
-        } else if (msg.type === "error" && msg.requestId === requestId) {
+        } else if (msg.type === "error") {
           setTestResult({ success: false, error: msg.message });
           setTesting(false);
         }
@@ -73,19 +83,16 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
   const handleSave = () => {
     setSaving(true);
     setSaveError(null);
-    const requestId = `save-${Date.now()}`;
     sendRequest(
       {
         type: "save-connection",
-        requestId,
         config: buildConfig(),
         password: driver === "postgres" ? password : undefined,
-      },
+      } as any,
       (msg: any) => {
-        if (msg.type === "connection-saved" && msg.requestId === requestId) {
+        if (msg.type === "connection-saved") {
           setSaving(false);
-          // Optionally close the panel or show success
-        } else if (msg.type === "error" && msg.requestId === requestId) {
+        } else if (msg.type === "error") {
           setSaveError(msg.message);
           setSaving(false);
         }
@@ -149,25 +156,33 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
             <div className="ssl-fields">
               <div className="form-group">
                 <label>CA File</label>
-                <input type="text" value={caFile} onChange={(e) => setCaFile(e.target.value)} placeholder="/path/to/ca.pem" />
+                <div className="file-input-row">
+                  <input type="text" value={caFile} onChange={(e) => setCaFile(e.target.value)} placeholder="/path/to/ca.pem" />
+                  <button type="button" className="browse-button" onClick={async () => {
+                    const path = await pickFile("Select CA Certificate", "PEM", ["pem", "crt", "cer"]);
+                    if (path) setCaFile(path);
+                  }}>Browse...</button>
+                </div>
               </div>
               <div className="form-group">
                 <label>Client Certificate</label>
-                <input
-                  type="text"
-                  value={clientCertFile}
-                  onChange={(e) => setClientCertFile(e.target.value)}
-                  placeholder="/path/to/client-cert.pem"
-                />
+                <div className="file-input-row">
+                  <input type="text" value={clientCertFile} onChange={(e) => setClientCertFile(e.target.value)} placeholder="/path/to/client-cert.pem" />
+                  <button type="button" className="browse-button" onClick={async () => {
+                    const path = await pickFile("Select Client Certificate", "PEM", ["pem", "crt", "cer"]);
+                    if (path) setClientCertFile(path);
+                  }}>Browse...</button>
+                </div>
               </div>
               <div className="form-group">
                 <label>Client Key</label>
-                <input
-                  type="text"
-                  value={clientKeyFile}
-                  onChange={(e) => setClientKeyFile(e.target.value)}
-                  placeholder="/path/to/client-key.pem"
-                />
+                <div className="file-input-row">
+                  <input type="text" value={clientKeyFile} onChange={(e) => setClientKeyFile(e.target.value)} placeholder="/path/to/client-key.pem" />
+                  <button type="button" className="browse-button" onClick={async () => {
+                    const path = await pickFile("Select Client Key", "PEM", ["pem", "key"]);
+                    if (path) setClientKeyFile(path);
+                  }}>Browse...</button>
+                </div>
               </div>
               <div className="form-group">
                 <label className="checkbox-label">
@@ -187,12 +202,24 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
       {driver === "sqlite" && (
         <div className="form-group">
           <label>Database File</label>
-          <input
-            type="text"
-            value={filePath}
-            onChange={(e) => setFilePath(e.target.value)}
-            placeholder="/path/to/database.db"
-          />
+          <div className="file-input-row">
+            <input
+              type="text"
+              value={filePath}
+              onChange={(e) => setFilePath(e.target.value)}
+              placeholder="/path/to/database.db"
+            />
+            <button
+              type="button"
+              className="browse-button"
+              onClick={async () => {
+                const path = await pickFile("Select SQLite Database", "SQLite", ["db", "sqlite", "sqlite3"]);
+                if (path) setFilePath(path);
+              }}
+            >
+              Browse...
+            </button>
+          </div>
         </div>
       )}
 

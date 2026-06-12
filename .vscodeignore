@@ -1,8 +1,12 @@
 .vscode
 src
-node_modules
+node_modules/**
+!node_modules/sql.js/dist/sql-asm.js
 .gitignore
 tsconfig.json
 tsconfig.webview.json
 vite.config.ts
 esbuild.js
+test
+docs
+vitest.config.ts
