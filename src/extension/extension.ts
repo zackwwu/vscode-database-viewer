@@ -28,7 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
         webviewManager.openTableView(connectionId, schema, table);
       }
     ),
-    vscode.commands.registerCommand("databaseViewer.openQuery", (connectionId?: string) => {
+    vscode.commands.registerCommand("databaseViewer.openQuery", (nodeOrId?: DatabaseTreeItem | string) => {
+      const connectionId = typeof nodeOrId === "string" ? nodeOrId : nodeOrId?.connectionId;
       webviewManager.openQueryConsole(connectionId);
     }),
     vscode.commands.registerCommand("databaseViewer.editConnection", (node: DatabaseTreeItem) => {

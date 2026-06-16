@@ -1,26 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { TableView } from "./components/TableView/TableView";
 import { QueryConsole } from "./components/QueryConsole/QueryConsole";
 import { ConnectionForm } from "./components/ConnectionForm/ConnectionForm";
 import { InitMessage } from "./types/messages";
 
+function getInitData(): InitMessage {
+  const root = document.getElementById("root")!;
+  const panelType = root.dataset.panelType as InitMessage["panelType"];
+  const context = JSON.parse(root.dataset.context || "{}");
+  return { type: "init", panelType, ...context } as InitMessage;
+}
+
 export default function App() {
-  const [initData, setInitData] = useState<InitMessage | null>(null);
-
-  useEffect(() => {
-    const listener = (event: MessageEvent) => {
-      const msg = event.data;
-      if (msg.type === "init") {
-        setInitData(msg as InitMessage);
-      }
-    };
-    window.addEventListener("message", listener);
-    return () => window.removeEventListener("message", listener);
-  }, []);
-
-  if (!initData) {
-    return <div className="loading">Initializing...</div>;
-  }
+  const initData = getInitData();
 
   if (initData.panelType === "table") {
     return (

@@ -49,8 +49,9 @@ export class SqliteDriver implements DatabaseDriver {
       throw new Error("Not connected");
     }
 
-    const trimmed = sql.trim().toUpperCase();
-    const isSelect = trimmed.startsWith("SELECT") || trimmed.startsWith("PRAGMA") || trimmed.startsWith("WITH");
+    const stripped = sql.replace(/--.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "").trim();
+    const uppercased = stripped.toUpperCase();
+    const isSelect = uppercased.startsWith("SELECT") || uppercased.startsWith("PRAGMA") || uppercased.startsWith("WITH");
 
     if (isSelect) {
       // Inline params into SQL for SELECT queries (sql.js exec param support is unreliable)

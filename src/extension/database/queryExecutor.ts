@@ -4,25 +4,6 @@ import { QueryResult, RowChange, ColumnMeta } from "../../shared/types";
 export class QueryExecutor {
   constructor(private connectionManager: ConnectionManager) {}
 
-  private convertParams(
-    sql: string,
-    params: unknown[],
-    driverType: "postgres" | "sqlite"
-  ): { sql: string; params: unknown[] } {
-    if (driverType === "postgres" && params.length > 0) {
-      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
-      let paramIndex = 1;
-      let converted = sql;
-      for (const _ of params) {
-        converted = converted.replace("?", `$${paramIndex}`);
-        paramIndex++;
-      }
-      return { sql: converted, params };
-    }
-    // SQLite uses ? placeholders as-is
-    return { sql, params };
-  }
-
   async fetchTableData(
     connectionId: string,
     table: string,
@@ -33,10 +14,6 @@ export class QueryExecutor {
     offset: number = 0
   ): Promise<{ rows: Record<string, unknown>[]; columns: ColumnMeta[] }> {
     const driver = await this.connectionManager.getDriver(connectionId);
-    const connection = this.connectionManager.getConnection(connectionId);
-    if (!connection) {
-      throw new Error(`Connection ${connectionId} not found`);
-    }
 
     const columns = await driver.getColumns(table, schema);
 
@@ -49,8 +26,7 @@ export class QueryExecutor {
     sql += ` LIMIT ? OFFSET ?`;
     params.push(limit, offset);
 
-    const { sql: convertedSql, params: convertedParams } = this.convertParams(sql, params, connection.driver);
-    const result = await driver.execute(convertedSql, convertedParams);
+    const result = await driver.execute(sql, params);
     return { rows: result.rows, columns };
   }
 
@@ -61,10 +37,6 @@ export class QueryExecutor {
     where?: string
   ): Promise<number> {
     const driver = await this.connectionManager.getDriver(connectionId);
-    const connection = this.connectionManager.getConnection(connectionId);
-    if (!connection) {
-      throw new Error(`Connection ${connectionId} not found`);
-    }
 
     const qualifiedTable = schema ? `"${schema}"."${table}"` : `"${table}"`;
     let sql = `SELECT COUNT(*) as count FROM ${qualifiedTable}`;
@@ -81,10 +53,6 @@ export class QueryExecutor {
     changes: RowChange[]
   ): Promise<{ updatedCount: number; errors: { rowKey: Record<string, unknown>; message: string }[] }> {
     const driver = await this.connectionManager.getDriver(connectionId);
-    const connection = this.connectionManager.getConnection(connectionId);
-    if (!connection) {
-      throw new Error(`Connection ${connectionId} not found`);
-    }
 
     const qualifiedTable = schema ? `"${schema}"."${table}"` : `"${table}"`;
     const errors: { rowKey: Record<string, unknown>; message: string }[] = [];
@@ -110,14 +78,8 @@ export class QueryExecutor {
             params.push(val);
           }
 
-          let sql = `UPDATE ${qualifiedTable} SET ${setClauses.join(", ")} WHERE ${whereClause.join(" AND ")}`;
-          const { sql: convertedSql, params: convertedParams } = this.convertParams(
-            sql,
-            params,
-            connection.driver
-          );
-
-          const result = await driver.execute(convertedSql, convertedParams);
+          const sql = `UPDATE ${qualifiedTable} SET ${setClauses.join(", ")} WHERE ${whereClause.join(" AND ")}`;
+          const result = await driver.execute(sql, params);
           if (result.affectedRows === 0) {
             errors.push({ rowKey: change.primaryKey, message: "Row not found" });
           } else {

@@ -41,6 +41,7 @@ export function TableView({ connectionId, schema, table }: TableViewProps) {
   );
 
   const getRowKey = (row: Record<string, unknown>): string => {
+    // TODO: hash the serialized row to shorten the ID for tables without primary keys
     if (primaryKeys.length === 0) return JSON.stringify(row);
     const key: Record<string, unknown> = {};
     for (const pk of primaryKeys) {

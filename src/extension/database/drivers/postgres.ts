@@ -53,7 +53,13 @@ export class PostgresDriver implements DatabaseDriver {
       throw new Error("Not connected");
     }
 
-    const result = await this.pool.query(sql, params);
+    let convertedSql = sql;
+    if (params && params.length > 0) {
+      let paramIndex = 1;
+      convertedSql = sql.replace(/\?/g, () => `$${paramIndex++}`);
+    }
+
+    const result = await this.pool.query(convertedSql, params);
 
     if (result.fields && result.fields.length > 0) {
       const columns: ColumnMeta[] = result.fields.map((field) => ({

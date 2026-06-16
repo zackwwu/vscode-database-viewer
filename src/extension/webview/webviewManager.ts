@@ -83,21 +83,13 @@ export class WebviewManager {
     const handler = new MessageHandler(panel, this.connectionManager, connectionId);
     panel.webview.onDidReceiveMessage((msg) => handler.handleMessage(msg));
 
-    panel.webview.html = this.getWebviewHtml(panel.webview, type, context);
+    panel.webview.html = this.getWebviewHtml(panel.webview, type, { connectionId, ...context });
 
     panel.onDidDispose(() => {
       this.panels.delete(key);
     });
 
     this.panels.set(key, { panel, handler, type });
-
-    // Send initial context to webview
-    panel.webview.postMessage({
-      type: "init",
-      panelType: type,
-      connectionId,
-      ...context,
-    } as any);
   }
 
   openConnectionForm(existingConfig?: any): void {
@@ -121,7 +113,9 @@ export class WebviewManager {
       }
     );
 
-    panel.webview.html = this.getWebviewHtml(panel.webview, "connection-form", {});
+    panel.webview.html = this.getWebviewHtml(panel.webview, "connection-form", {
+      existingConfig: existingConfig || undefined,
+    });
 
     // Override message handler for connection form
     panel.webview.onDidReceiveMessage(async (msg: any) => {
@@ -219,13 +213,6 @@ export class WebviewManager {
     });
 
     this.panels.set(panelKey, { panel, handler: null as any, type: "connection-form" });
-
-    // Send init message
-    panel.webview.postMessage({
-      type: "init",
-      panelType: "connection-form",
-      existingConfig: existingConfig || undefined,
-    });
   }
 
   private getWebviewHtml(
@@ -252,12 +239,12 @@ export class WebviewManager {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; font-src ${webview.cspSource};">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' blob:; worker-src blob:; font-src ${webview.cspSource};">
   <link href="${styleUri}" rel="stylesheet">
   <title>${titleMap[type] || "Database Viewer"}</title>
 </head>
 <body>
-  <div id="root" data-panel-type="${type}" data-context='${JSON.stringify(context)}'></div>
+  <div id="root" data-panel-type="${type}" data-context='${JSON.stringify(context).replace(/'/g, "&#39;")}'></div>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
