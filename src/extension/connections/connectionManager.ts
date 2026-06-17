@@ -89,6 +89,11 @@ export class ConnectionManager {
     return this.context.secrets.get(`${PASSWORD_PREFIX}${id}`);
   }
 
+  isConnected(id: string): boolean {
+    const cached = this.drivers.get(id);
+    return cached?.isConnected() ?? false;
+  }
+
   async getDriver(id: string): Promise<DatabaseDriver> {
     const cached = this.drivers.get(id);
     if (cached) {

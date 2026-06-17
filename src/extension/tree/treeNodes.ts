@@ -22,7 +22,10 @@ export function createConnectionNode(
     collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
     contextValue: "connection",
     description: driver,
-    iconPath: new vscode.ThemeIcon(connected ? "database" : "circle-outline"),
+    iconPath: new vscode.ThemeIcon(
+      connected ? "circle-filled" : "circle-outline",
+      connected ? new vscode.ThemeColor("testing.iconPassed") : new vscode.ThemeColor("disabledForeground")
+    ),
   } as DatabaseTreeItem;
   return node;
 }

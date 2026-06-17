@@ -23,8 +23,10 @@ export class QueryExecutor {
 
     if (where) sql += ` WHERE ${where}`;
     if (orderBy) sql += ` ORDER BY ${orderBy}`;
-    sql += ` LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+    if (limit > 0) {
+      sql += ` LIMIT ? OFFSET ?`;
+      params.push(limit, offset);
+    }
 
     const result = await driver.execute(sql, params);
     return { rows: result.rows, columns };

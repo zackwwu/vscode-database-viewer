@@ -67,7 +67,7 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
     setTesting(true);
     setTestResult(null);
     sendRequest(
-      { type: "test-connection", config: buildConfig() } as any,
+      { type: "test-connection", config: buildConfig(), password } as any,
       (msg: any) => {
         if (msg.type === "connection-test-result") {
           setTestResult({ success: msg.success, error: msg.error });
@@ -87,7 +87,7 @@ export function ConnectionForm({ existingConfig }: ConnectionFormProps) {
       {
         type: "save-connection",
         config: buildConfig(),
-        password: driver === "postgres" ? password : undefined,
+        password,
       } as any,
       (msg: any) => {
         if (msg.type === "connection-saved") {

@@ -19,7 +19,8 @@ export function FilterToolbar({
 }: FilterToolbarProps) {
   const [where, setWhere] = useState("");
   const [orderBy, setOrderBy] = useState("");
-  const [limit, setLimit] = useState(currentLimit);
+  const [limitStr, setLimitStr] = useState(String(currentLimit));
+  const limit = parseInt(limitStr) || 0;
 
   const handleApply = () => {
     onApplyFilters(where, orderBy, limit, 0);
@@ -29,8 +30,8 @@ export function FilterToolbar({
     if (e.key === "Enter") handleApply();
   };
 
-  const totalPages = totalCount !== null ? Math.ceil(totalCount / limit) : null;
-  const currentPage = Math.floor(currentOffset / limit) + 1;
+  const totalPages = totalCount !== null && limit > 0 ? Math.ceil(totalCount / limit) : null;
+  const currentPage = limit > 0 ? Math.floor(currentOffset / limit) + 1 : 1;
 
   const goToPage = (page: number) => {
     const newOffset = (page - 1) * limit;
@@ -66,11 +67,12 @@ export function FilterToolbar({
           LIMIT:
           <input
             type="number"
-            value={limit}
-            onChange={(e) => setLimit(Math.max(1, parseInt(e.target.value) || 50))}
+            value={limitStr}
+            onChange={(e) => setLimitStr(e.target.value)}
             onKeyDown={handleKeyDown}
-            min={1}
+            min={0}
             max={10000}
+            placeholder="All"
             disabled={loading}
           />
         </label>

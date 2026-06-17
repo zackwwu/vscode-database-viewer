@@ -46,24 +46,18 @@ export class DatabaseTreeProvider implements vscode.TreeDataProvider<DatabaseTre
 
   private getRootChildren(): DatabaseTreeItem[] {
     const connections = this.connectionManager.getConnections();
-    const nodes = connections.map((conn) => {
-      // Check if driver is cached and connected
-      let connected = false;
-      try {
-        const driverKey = `driver-${conn.id}`;
-        // We'll rely on the tree to show connection status; drivers are created on demand
-        connected = false;
-      } catch {
-        // If there's an error, default to not connected
-      }
-      return createConnectionNode(conn.id, conn.name, conn.driver, connected);
-    });
-    return nodes;
+    return connections.map((conn) =>
+      createConnectionNode(conn.id, conn.name, conn.driver, this.connectionManager.isConnected(conn.id))
+    );
   }
 
   private async getConnectionChildren(node: DatabaseTreeItem): Promise<DatabaseTreeItem[]> {
     try {
+      const wasConnected = this.connectionManager.isConnected(node.connectionId);
       const driver = await this.connectionManager.getDriver(node.connectionId);
+      if (!wasConnected) {
+        this._onDidChangeTreeData.fire(undefined);
+      }
       const tables = await driver.getTables();
 
       const schemas = new Set(tables.map((t) => t.schema).filter(Boolean));

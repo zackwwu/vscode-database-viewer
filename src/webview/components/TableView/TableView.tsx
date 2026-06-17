@@ -50,22 +50,34 @@ export function TableView({ connectionId, schema, table }: TableViewProps) {
     return JSON.stringify(key);
   };
 
-  const colDefs: ColDef[] = columns.map((col) => ({
-    field: col.name,
-    headerName: col.isPrimaryKey ? `${col.name} 🔑` : col.name,
-    headerTooltip: `${col.dataType}${col.isPrimaryKey ? " (PK)" : ""}`,
-    sortable: true,
-    filter: true,
-    editable: !isReadOnly,
-    cellStyle: (params: any) => {
-      const rowKey = getRowKey(params.data);
-      const cellDirty = dirtyState.get(rowKey)?.get(col.name);
-      if (cellDirty) {
-        return { backgroundColor: "rgba(255, 200, 0, 0.2)" };
-      }
-      return undefined;
+  const colDefs: ColDef[] = [
+    {
+      headerName: "#",
+      valueGetter: (params: any) => params.node?.rowIndex ?? 0,
+      width: 60,
+      pinned: "left",
+      sortable: false,
+      filter: false,
+      editable: false,
+      suppressSizeToFit: true,
     },
-  }));
+    ...columns.map((col) => ({
+      field: col.name,
+      headerName: col.isPrimaryKey ? `${col.name} 🔑` : col.name,
+      headerTooltip: `${col.dataType}${col.isPrimaryKey ? " (PK)" : ""}`,
+      sortable: true,
+      filter: true,
+      editable: !isReadOnly,
+      cellStyle: (params: any) => {
+        const rowKey = getRowKey(params.data);
+        const cellDirty = dirtyState.get(rowKey)?.get(col.name);
+        if (cellDirty) {
+          return { backgroundColor: "rgba(255, 200, 0, 0.2)" };
+        }
+        return undefined;
+      },
+    })),
+  ];
 
   const fetchData = useCallback(
     (where?: string, orderBy?: string, actualLimit?: number, actualOffset?: number) => {

@@ -144,15 +144,10 @@ export class WebviewManager {
           const config = msg.config;
           let driver: any;
 
+          const pwd = msg.password || await this.connectionManager.getPassword(config.id) || "";
           if (config.driver === "sqlite") {
             driver = new SqliteDriver({ filePath: config.filePath! });
           } else {
-            // Get stored password if not provided
-            let pwd = "";
-            if (config.username) {
-              const stored = await this.connectionManager.getPassword(config.id);
-              pwd = stored || "";
-            }
             driver = new PostgresDriver({
               host: config.host,
               port: config.port,
@@ -239,7 +234,7 @@ export class WebviewManager {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' blob:; worker-src blob:; font-src ${webview.cspSource};">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' blob:; worker-src blob:; font-src ${webview.cspSource}; img-src data:;">
   <link href="${styleUri}" rel="stylesheet">
   <title>${titleMap[type] || "Database Viewer"}</title>
 </head>
